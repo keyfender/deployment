@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>keyfender-ui</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        /* font-family: 'Avenir', Helvetica, Arial, sans-serif; */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /*  text-align: center;*/
+        color: #2c3e50;
+        /* margin-top: 60px; */
+      }
+      img#logo {
+        height: 2em;
+        margin-bottom: -.6em;
+      }
+      h1, h2 {
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <img id="logo" src="logo.png" />key<b>fender</b>
+    </h1>
+    <p>
+      This page is hosted by an nginx instance and is encrypted with
+      SSL.  The private key is securly stored in a keyfender instance
+      running as a unikernel and is used by nginx over the OpenSSL
+      PKCS#11 Engine and the keyfender PKCS#11 driver, that again
+      uses the REST HTTP API of the keyfender instance.
+    </p>
+    <h2>Links</h2>
+    <ul>
+      <li>
+        <a href="https://github.com/keyfender" target="_blank">GitHub</a>
+      </li>
+    </ul>
+  </body>
+</html>
