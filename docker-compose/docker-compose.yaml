@@ -29,7 +29,8 @@ services:
       - "-ex"
       - "-c"
       - |
-        curl -i -X POST http://admin:secret@keyfender:8080/api/v0/keys -d @/import-key.json
+        while ! nc -z keyfender 8080 2>/dev/null ; do echo "waiting for keyfender..."; sleep 1; done
+        curl -s -X POST http://admin:secret@keyfender:8080/api/v0/keys -d @/import-key.json
         nginx -g "daemon off;"
     links:
       - keyfender
