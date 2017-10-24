@@ -6,7 +6,7 @@ services:
     image: keyfender/keyfender
     ports:
       - 4433:4433
-      - 8080:8080
+      - 4480:8080
     command:
       - "/keyfender.socket"
       - "--password"
@@ -23,7 +23,7 @@ services:
       - ./config/nginx/key/import-key.json:/import-key.json:ro
       - ./config/nginx/html:/usr/share/nginx/html:ro
     ports:
-      - 8443:443
+      - 4434:443
     command:
       - "/bin/sh"
       - "-ex"
