@@ -1,5 +1,5 @@
 {
-    "purpose": "signing",
+    "purpose": "sign",
     "algorithm": "RSA",
     "id": "web_server",
     "privateKey": {
