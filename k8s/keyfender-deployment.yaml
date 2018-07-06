@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keyfender
+  labels:
+    app: keyfender
+    tier: api
+spec:
+  ports:
+    - port: 8080
+      name: keyfender
+      nodePort: 30400
+    - port: 4433
+      name: keyfender-tls
+      nodePort: 30401
+  selector:
+    app: keyfender
+    tier: api
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keyfender
+  labels:
+    app: keyfender
+    tier: api
+spec:
+  selector:
+    matchLabels:
+      app: keyfender
+      tier: api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: keyfender
+        tier: api
+    spec:
+      containers:
+        - image: keyfender/keyfender
+          name: keyfender
+          env:
+            - name: KEYFENDER_IRMIN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: keyfender-config
+                  key: irmin_url
+            - name: MIRAGE_LOGS
+              valueFrom:
+                configMapKeyRef:
+                  name: keyfender-config
+                  key: log_level
+            - name: KEYFENDER_MEM
+              valueFrom:
+                configMapKeyRef:
+                  name: keyfender-config
+                  key: memory
+            - name: KEYFENDER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keyfender-secrets
+                  key: password
+            - name: KEYFENDER_MASTERKEY
+              valueFrom:
+                secretKeyRef:
+                  name: keyfender-secrets
+                  key: masterkey
+          ports:
+            - containerPort: 8080
+              name: keyfender
+            - containerPort: 4433
+              name: keyfender-tls
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /api/v0/system/status
+              port: keyfender-tls
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: /dev/net/tun
+              name: dev-tun
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+            privileged: false
+          resources:
+            limits:
+              devices.kubevirt.io/kvm: "1"
+      volumes:
+        - hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+          name: dev-tun
+      terminationGracePeriodSeconds: 5

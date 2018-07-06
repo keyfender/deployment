@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keyfender-config
+  labels:
+    app: keyfender
+    tier: api
+data:
+  log_level: "debug"
+  memory: "24"
+  irmin_url: "http://keyfender-irmin.default.svc.cluster.local:8080"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keyfender-secrets
+  labels:
+    app: keyfender
+    tier: api
+type: Opaque
+data:
+  password: c2VjcmV0
+  masterkey: MDAwMTAyMDMwNDA1MDYwNzA4MDkwQTBCMEMwRDBFMEY=

@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keyfender-irmin
+  labels:
+    app: keyfender
+    tier: data
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: keyfender
+    tier: data
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keyfender-irmin
+  labels:
+    app: keyfender
+    tier: data
+spec:
+  selector:
+    matchLabels:
+      app: keyfender
+      tier: data
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: keyfender
+        tier: data
+    spec:
+      containers:
+        - image: keyfender/irmin
+          name: irmin
+          ports:
+          - containerPort: 8080
+            name: irmin
+          volumeMounts:
+          - name: irmin-data
+            mountPath: /data
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /branches
+              port: irmin
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: irmin-data
+          persistentVolumeClaim:
+            claimName: irmin-data
