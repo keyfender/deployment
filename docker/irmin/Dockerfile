@@ -1,7 +1,8 @@
 FROM alpine
 
 EXPOSE 8443 8080
-RUN apk add --no-cache --purge -U \
+RUN set -ex ;\
+    apk add --no-cache --purge -U \
        opam sudo make bash gcc musl-dev \
        gmp gmp-dev libressl-dev linux-headers m4 perl zlib-dev ;\
     adduser -D irmin ;\
@@ -9,10 +10,11 @@ RUN apk add --no-cache --purge -U \
     chown irmin /data ;\
     export OPAMYES=1 ;\
     opam init ;\
+    opam switch 4.06.1 ;\
     eval $(opam config env) ;\
     opam update ;\
     opam install irmin-unix ;\
-    mv ~/.opam/system/bin/irmin / ;\
+    mv ~/.opam/4.06.1/bin/irmin / ;\
     apk del opam make bash gcc musl-dev gmp-dev libressl-dev \
        linux-headers m4 perl zlib-dev ;\
     rm -rf /var/cache/apk/* ;\
