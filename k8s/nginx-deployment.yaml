@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-keyfender
+  labels:
+    app: keyfender
+    tier: consumer
+spec:
+  ports:
+    - port: 443
+      name: nginx-keyfender
+      nodePort: 30443
+  selector:
+    app: keyfender
+    tier: consumer
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-keyfender
+  labels:
+    app: keyfender
+    tier: consumer
+spec:
+  selector:
+    matchLabels:
+      app: keyfender
+      tier: consumer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: keyfender
+        tier: consumer
+    spec:
+      containers:
+        - image: keyfender/nginx-p11net
+          name: nginx-keyfender
+          env:
+            - name: P11NET_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: nginx-config
+                  key: keyfender_url
+            - name: P11NET_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nginx-config
+                  key: keyfender_user
+            - name: P11NET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nginx-secrets
+                  key: keyfender_password
+          ports:
+            - containerPort: 443
+              name: nginx-keyfender
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: conf-dir
+            - mountPath: /usr/share/nginx/html
+              name: html-dir
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /
+              port: nginx-keyfender
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: conf-dir
+          configMap:
+            name: nginx-conf-dir
+        - name: html-dir
+          configMap:
+            name: nginx-html-dir
+      terminationGracePeriodSeconds: 5

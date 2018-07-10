@@ -39,4 +39,25 @@ $ kubectl logs -l app=keyfender,tier=api
 and look for the text `##### Starting keyfender as kvm instance #####` to make
 sure, the unikernel really runs as a VM.
 
+## Deploying nginx as a demo consumer of keyfender
 
+First, if not done so before, deploy the demo private key into keyfender by
+executing the script:
+```
+$ ./deploy-demo-key.sh
+```
+
+Then deploy the nginx deployment, that has no knowledge of the private key and
+uses keyfender instead for crypto operations: 
+```
+$ kubectl create -f nginx-config.yaml -f nginx-deployment.yaml
+```
+
+Point your browser to port 30443 of your kubernetes node, to connect to the
+nginx ssl service to prove that it works. If you are using minikube, that is
+easily done with the command:
+```
+$ minikube service --https nginx-keyfender
+```
+
+Now play around with scaling, more complex content and give me feedback! :-)
